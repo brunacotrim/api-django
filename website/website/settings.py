@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+from dotenv import load_dotenv
+from os import getenv
+
+# from manage import verifying_key, signing_key
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +47,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_yasg',
+    'rest_framework_simplejwt',
 
     'users',
 ]
@@ -145,4 +153,18 @@ REST_FRAMEWORK = {
         'anon': '5/minute',
         'user': '15/minute'
     },
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ALGORITHM': 'RS256',
+    'SIGNING_KEY': getenv('SIGNING_KEY'),
+    'VERIFYING_KEY': getenv('VERIFYING_KEY'),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 }
