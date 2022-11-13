@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path, re_path
-from users.urls import router
+from users.urls import router_users
+from products.urls import router_products
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -34,7 +35,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
+    path('api/v1/', include(router_users.urls)),
+    path('api/v1/', include(router_products.urls)),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
