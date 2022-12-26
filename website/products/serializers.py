@@ -45,3 +45,9 @@ class ProductSerializer(serializers.ModelSerializer):
             'updated_at',
             'variations'
         ]
+
+    def validate(self, data):
+        if data['special_price'] >= data['price']:
+            raise serializers.ValidationError(
+                'O preço promocional precisa ser menor que o preço do produto.')
+        return data
