@@ -27,9 +27,23 @@ class Product(Base):
     category = models.CharField(max_length=150)
 
     class Meta:
-        verbose_name = 'Produto'
-        verbose_name_plural = 'Produtos'
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
         ordering = ['id']
     
+    def __str__(self):
+        return self.name
+
+class Variation(Base):
+    product = models.ForeignKey(Product, related_name='variations', on_delete=models.CASCADE)
+    name = models.CharField(max_length=20)
+    value = models.CharField(max_length=20)
+
+    class Meta:
+        verbose_name = 'Variation'
+        verbose_name_plural = 'Variations'
+        unique_together = ['product', 'name', 'value']
+        ordering = ['name', 'value']
+
     def __str__(self):
         return self.name

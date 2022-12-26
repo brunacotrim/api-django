@@ -1,12 +1,12 @@
-from .serializers import ProductSerializer
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from rest_framework.filters import OrderingFilter
 from decimal import Decimal
 
-from .models import Product
+from .serializers import *
+from .models import Product, Variation
 from .filters import ProductFilter
 
 
@@ -21,7 +21,7 @@ CORREIOS_MAX_WEIGHT = Decimal('30.0')
 
 class ProductViewSet(viewsets.ModelViewSet):
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().distinct()
     serializer_class = ProductSerializer
 
     filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
@@ -36,9 +36,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         'updated_at',
         'special_price'
         ]
-        
 
-    @action(detail=True, methods=['get'], url_path='cubage', url_name='cubage')
+    @action(detail=True)
     def cubage(self, request, pk=None):
         data = self.get_object()
         cubed_weight = (data.height * data.width * data.length) / CUBIC_FACTOR
@@ -53,7 +52,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                         'real_weight': data.weight,
                         'cubic_factor': CUBIC_FACTOR})
     
-    @action(detail=True, methods=['get'], url_path='correios', url_name='correios')
+    @action(detail=True)
     def correios(self, request, pk=None):
         data = self.get_object()
         details = {}
@@ -89,3 +88,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             response['details'] = details
 
         return Response(response)
+    
+
+class VariationViewSet(viewsets.ModelViewSet):
+
+    queryset = Variation.objects.all()
+    serializer_class = VariationSerializer
+

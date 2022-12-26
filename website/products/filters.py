@@ -10,6 +10,8 @@ class ProductFilter(filters.FilterSet):
     category = filters.CharFilter(field_name='category', lookup_expr='istartswith')
     enable = filters.BooleanFilter(field_name='status')
     updated_after = filters.DateTimeFilter(field_name='updated_at', lookup_expr='gt')
+    variation = filters.CharFilter(field_name='variations__name', lookup_expr='iexact')
+    variation_value = filters.CharFilter(field_name='variations__value', lookup_expr='iexact')
 
     has_brand = filters.BooleanFilter(field_name='brand', method='no_empty')
     has_description = filters.BooleanFilter(field_name='description', method='no_empty')
