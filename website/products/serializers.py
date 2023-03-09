@@ -51,3 +51,39 @@ class ProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'O preço promocional precisa ser menor que o preço do produto.')
         return data
+
+
+class InventorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'sku',
+            'name',
+            'quantity'
+        ]
+
+
+class OnSaleSerializer(serializers.ModelSerializer):
+
+    discount = serializers.SerializerMethodField()
+    discount_percentage = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'sku',
+            'name',
+            'price',
+            'special_price',
+            'discount',
+            'discount_percentage'
+        ]
+
+    def get_discount(self, data):
+        return data.price - data.special_price
+
+    def get_discount_percentage(self, data):
+        return round(((data.price - data.special_price) / data.price) * 100, 2)

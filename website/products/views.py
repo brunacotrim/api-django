@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from rest_framework.filters import OrderingFilter
 from decimal import Decimal
+from django.db.models import Count
 
 from .serializers import *
 from .models import Product, Variation
@@ -89,9 +90,41 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         return Response(response)
     
+    @action(detail=False,
+        serializer_class = InventorySerializer,
+        permission_classes = [permissions.IsAuthenticated])
+    def inventory(self, request, pk=None):
+
+        data = Product.objects.order_by('-quantity')
+        return paginate_serializate(self, data)
+    
+    @action(detail=False,
+        serializer_class = OnSaleSerializer,
+        permission_classes = [permissions.IsAuthenticated])
+    def onsale(self, request, pk=None):
+        
+        data = Product.objects.filter(special_price__gt=0)
+        return paginate_serializate(self, data)
+
+    @action(detail=False)
+    def category(self, request, pk=None):
+        
+        data = Product.objects.values('category').annotate(
+            products=Count('id')).order_by('-products')
+        return Response(data)
+
 
 class VariationViewSet(viewsets.ModelViewSet):
 
     queryset = Variation.objects.all()
     serializer_class = VariationSerializer
 
+
+def paginate_serializate(self, data):
+    page = self.paginate_queryset(data)
+    if page is not None:
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    serializer = self.get_serializer(data, many=True)
+    return Response(serializer.data)
